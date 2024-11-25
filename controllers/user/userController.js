@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
     return res
       .status(201)
       .cookie("token", token, { expires: new Date(Date.now() + date1) })
-      .json({ sucess: true, createdUser })
+      .json({ success: true, createdUser })
   } catch (error) {
     return res.status(401).json({
       success: false,
