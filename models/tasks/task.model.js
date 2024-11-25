@@ -14,6 +14,11 @@ const checklistItemSchema = new mongoose.Schema({
 
 const taskSchema = mongoose.Schema(
   {
+    status: {
+      type: String,
+      enum: ["backlog", "todo", "inProgress", "done"],
+      default: "todo",
+    },
     createdBy: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "User",

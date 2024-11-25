@@ -39,4 +39,20 @@ const getAllTasks = async (req, res) => {
   }
 }
 
-module.exports = { newTaskList, getAllTasks }
+const removeTask = async (req, res) => {
+  //find the product
+  const { id } = req?.params
+
+  try {
+    const deleteTask = await Task.findByIdAndDelete(id)
+
+    res.status(200).json(deleteTask)
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: error.message,
+    })
+  }
+}
+
+module.exports = { newTaskList, getAllTasks, removeTask }
