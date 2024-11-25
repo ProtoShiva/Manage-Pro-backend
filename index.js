@@ -4,6 +4,7 @@ const cors = require("cors")
 const dotenv = require("dotenv").config()
 const { connectDb } = require("./database/db")
 const userRoutes = require("./routes/users/userRoute.js")
+const taskRoutes = require("./routes/tasks/taskRoute.js")
 
 const app = express()
 const PORT = 8000
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/user", userRoutes)
+app.use("/api/task", taskRoutes)
 
 connectDb()
 
