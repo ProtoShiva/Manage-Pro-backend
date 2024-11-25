@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken")
 const User = require("../models/user/user.model.js")
+const ErrorHandler = require("../utils/customError.js")
 
 const userAuth = async (req, res, next) => {
   //check and get the token/cookie
@@ -7,9 +8,7 @@ const userAuth = async (req, res, next) => {
 
   try {
     if (!token) {
-      return res.status(401).json({
-        message: "No entry without authentication!",
-      })
+      return next(new ErrorHandler("You are not authenticated", 401))
     }
 
     const user = jwt.verify(token, process.env.APP_JWT_SECRET_KEY)
@@ -18,7 +17,7 @@ const userAuth = async (req, res, next) => {
 
     req.user = userFound
   } catch (error) {
-    return res.json({ message: "Error at Authentication", error })
+    next(error)
   }
 
   next()
