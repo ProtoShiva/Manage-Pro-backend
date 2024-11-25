@@ -46,6 +46,51 @@ const registerUser = async (req, res) => {
   }
 }
 
-const userLogin = (req, res) => {}
+const userLogin = async (req, res) => {
+  const { email, password } = req?.body
+
+  try {
+    const emailExists = await User.findOne({ email: email })
+
+    if (!emailExists) {
+      throw new Error("User Does not exist! Please Register.")
+    }
+
+    const user = await User.findOne({ email: email })
+    const comparePassword = await bcrypt.compare(password, user?.password)
+
+    if (!comparePassword) {
+      throw new Error("Password Doesn't Match!")
+    }
+
+    const data = {
+      id: user?._id,
+    }
+
+    //sign the cookie token
+    const token = jwt.sign(data, process.env.APP_JWT_SECRET_KEY, {
+      expiresIn: "12h",
+    })
+
+    user.password = undefined
+
+    res
+      .status(200)
+      .cookie("token", token, {
+        expires: new Date(Date.now() + date1),
+        sameSite: "None",
+        secure: true,
+      })
+      .json({
+        success: true,
+        user,
+      })
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: error.message,
+    })
+  }
+}
 
 module.exports = { registerUser, userLogin }
