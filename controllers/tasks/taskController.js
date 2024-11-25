@@ -3,11 +3,12 @@ const ErrorHandler = require("../../utils/customError")
 const { asyncHandler } = require("../../utils/tryCatch")
 
 const newTaskList = asyncHandler(async (req, res, next) => {
-  const { title, priority, checkList, dueDate } = req.body
+  const { title, priority, checkList, dueDate, status } = req.body
   const { _id } = req.user
 
   const newTask = new Task({
     createdBy: _id,
+    status,
     title,
     priority,
     checkList,
@@ -55,6 +56,7 @@ const updateTheTask = asyncHandler(async (req, res, next) => {
 
   const updatedTask = await Task.findByIdAndUpdate(id, updates, {
     new: true,
+    runValidators: true,
   })
   if (!updatedTask) {
     return next(new ErrorHandler("Task not found", 404))
