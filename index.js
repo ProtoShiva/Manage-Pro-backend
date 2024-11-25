@@ -5,9 +5,12 @@ const dotenv = require("dotenv").config()
 const { connectDb } = require("./database/db")
 const userRoutes = require("./routes/users/userRoute.js")
 const taskRoutes = require("./routes/tasks/taskRoute.js")
+const errorMiddleware = require("./middleware/errorHandler.js")
 
 const app = express()
 const PORT = 8000
+
+connectDb()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -21,7 +24,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", userRoutes)
 app.use("/api/task", taskRoutes)
-
-connectDb()
+app.use(errorMiddleware)
 
 app.listen(PORT, () => console.log(`server listening at port ${PORT}`))

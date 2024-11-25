@@ -1,17 +1,18 @@
 const User = require("../../models/user/user.model")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
+const ErrorHandler = require("../../utils/customError")
 
 const expiryDate = new Date()
 const date1 = expiryDate.setTime(expiryDate.getTime() + 12 * 60 * 60 * 1000)
 
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   const { name, email, password } = req.body
 
   try {
     const user = await User.findOne({ email: email })
     if (user) {
-      throw new Error("User Already exists! Please Login.")
+      return next(new ErrorHandler("User Already exists! Please Login.", 404))
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -39,28 +40,27 @@ const registerUser = async (req, res) => {
       .cookie("token", token, { expires: new Date(Date.now() + date1) })
       .json({ success: true, createdUser })
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: error.message,
-    })
+    next(error)
   }
 }
 
-const userLogin = async (req, res) => {
+const userLogin = async (req, res, next) => {
   const { email, password } = req?.body
 
   try {
     const emailExists = await User.findOne({ email: email })
 
     if (!emailExists) {
-      throw new Error("User Does not exist! Please Register.")
+      return next(
+        new ErrorHandler("User Does not exist! Please Register.", 404)
+      )
     }
 
     const user = await User.findOne({ email: email })
     const comparePassword = await bcrypt.compare(password, user?.password)
 
     if (!comparePassword) {
-      throw new Error("Password Doesn't Match!")
+      return next(new ErrorHandler("Password Doesn't Match!", 404))
     }
 
     const data = {
@@ -86,10 +86,7 @@ const userLogin = async (req, res) => {
         user,
       })
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: error.message,
-    })
+    next(error)
   }
 }
 

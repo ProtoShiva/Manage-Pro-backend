@@ -1,6 +1,7 @@
 const Task = require("../../models/tasks/task.model")
+const ErrorHandler = require("../../utils/customError")
 
-const newTaskList = async (req, res) => {
+const newTaskList = async (req, res, next) => {
   const { title, priority, checkList, dueDate } = req.body
   const { _id } = req.user
 
@@ -19,27 +20,21 @@ const newTaskList = async (req, res) => {
     // Respond with the created task
     res.status(201).json({ success: true, task: savedTask })
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: error.message,
-    })
+    next(error)
   }
 }
 
-const getAllTasks = async (req, res) => {
+const getAllTasks = async (req, res, next) => {
   const { id } = req.params
   try {
     const taskByUser = await Task.findById({ _id: id })
     res.status(200).json(taskByUser)
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: error.message,
-    })
+    next(error)
   }
 }
 
-const removeTask = async (req, res) => {
+const removeTask = async (req, res, next) => {
   //find the product
   const { id } = req?.params
 
@@ -48,14 +43,11 @@ const removeTask = async (req, res) => {
 
     res.status(200).json(deleteTask)
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: error.message,
-    })
+    next(error)
   }
 }
 
-const updateTheTask = async (req, res) => {
+const updateTheTask = async (req, res, next) => {
   const { id } = req.params
   try {
     const updates = req.body // Only the fields to be updated
@@ -64,12 +56,12 @@ const updateTheTask = async (req, res) => {
       new: true,
     })
     if (!updatedTask) {
-      return res.status(404).json({ success: false, message: "Task not found" })
+      return next(new ErrorHandler("Task not found", 404))
     }
 
     res.status(200).json({ success: true, task: updatedTask })
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" })
+    next(error)
   }
 }
 
