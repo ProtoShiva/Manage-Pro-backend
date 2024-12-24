@@ -29,13 +29,14 @@ const registerUser = asyncHandler(async (req, res, next) => {
     id: newUser?._id,
   }
   const token = jwt.sign(data, process.env.APP_JWT_SECRET_KEY, {
-    expiresIn: "25s",
+    expiresIn: "12h",
   })
 
   return res
     .status(201)
     .cookie("token", token, {
-      expires: new Date(Date.now() + 1000 * 25),
+      path: "/",
+      expires: new Date(Date.now() + 60000 * 60 * 12),
       httpOnly: true,
       sameSite: "lax",
       secure: true,
@@ -65,7 +66,7 @@ const userLogin = asyncHandler(async (req, res, next) => {
 
   //sign the cookie token
   const token = jwt.sign(data, process.env.APP_JWT_SECRET_KEY, {
-    expiresIn: "25s",
+    expiresIn: "12h",
   })
 
   user.password = undefined
@@ -73,7 +74,8 @@ const userLogin = asyncHandler(async (req, res, next) => {
   res
     .status(200)
     .cookie("token", token, {
-      expires: new Date(Date.now() + 1000 * 25),
+      path: "/",
+      expires: new Date(Date.now() + 60000 * 60 * 12),
       httpOnly: true,
       sameSite: "lax",
       secure: true,
@@ -85,6 +87,15 @@ const userLogin = asyncHandler(async (req, res, next) => {
     })
 })
 
+const userLogout = asyncHandler(async (req, res, next) => {
+  res.clearCookie("token")
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  })
+})
+
 const getUserDetails = asyncHandler(async (req, res, next) => {
   const userId = req.id
 
@@ -94,4 +105,4 @@ const getUserDetails = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ success: true, user })
 })
 
-module.exports = { registerUser, userLogin, getUserDetails }
+module.exports = { registerUser, userLogin, getUserDetails, userLogout }

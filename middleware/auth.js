@@ -1,9 +1,7 @@
 const jwt = require("jsonwebtoken")
-const User = require("../models/user/user.model.js")
 const ErrorHandler = require("../utils/customError.js")
 
 const userAuth = async (req, res, next) => {
-  //check and get the token/cookie
   const token = req?.cookies.token
 
   try {
@@ -12,8 +10,6 @@ const userAuth = async (req, res, next) => {
     }
 
     const user = jwt.verify(token, process.env.APP_JWT_SECRET_KEY)
-
-    // const userFound = await User.findById(user.id).select("-password")
 
     req.id = user.id
   } catch (error) {
